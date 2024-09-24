@@ -12,10 +12,12 @@
 - [x] Add abstraction layer for test data
 - [x] Add abstraction layer for static text
 - [ ] Multiple platform support - iOS and Android
+- [ ] Add More Test Classes / Defining common elements
+- [ ] Failure recovery / Fail safe test cases
 - [ ] Logging framework
 - [ ] Reporting framework
 - [ ] Capture Screenshots/Videos
-- [ ] Different Scrolling Mechanisms
+- [ ] Scrolling - Different Scrolling Mechanisms
 - [ ] Parallel Execution on Android and iOS
 - [ ] Programmatically start the Appium Server
 - [ ] Integrating with Git

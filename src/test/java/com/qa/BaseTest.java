@@ -4,6 +4,8 @@ import com.qa.utils.TestUtils;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.ios.options.XCUITestOptions;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
@@ -24,12 +26,14 @@ public class BaseTest {
     protected static AppiumDriver driver;
     protected static Properties props;
     protected static Properties strings;
+    protected static String platform;
     InputStream inputStream;
 
     @Parameters({"platformName", "udid", "deviceName"})
     @BeforeTest
     public void beforeTest(String platformName, String udid, String deviceName) {
         System.out.println("platformName: " + platformName);
+        platform = platformName;
         String propFileName = "config.properties";
         String stringsFileName = "strings/strings.properties";
 
@@ -41,19 +45,36 @@ public class BaseTest {
             strings = new Properties();
             strings.load(stringsInputStream);
 
-            String appUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(props.getProperty("androidAppLocation"))).getFile();
-
-            UiAutomator2Options options = new UiAutomator2Options()
-                    .setUdid(udid)
-                    .setDeviceName(deviceName)
-                    .setApp(appUrl)
-                    .setAppPackage(props.getProperty("androidAppPackage"))
-                    .setAppActivity(props.getProperty("androidAppActivity"))
-                    .setNewCommandTimeout(Duration.ofMinutes(5));
-
             URL url = new URL(props.getProperty("appiumURL"));
-            driver = new AndroidDriver(url, options);
-        } catch (IOException e) {
+            switch (platformName){
+                case "Android":
+                    String androidAppUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(props.getProperty("androidAppLocation"))).getFile();
+                    UiAutomator2Options androidOptions = new UiAutomator2Options()
+                            .setUdid(udid)
+                            .setDeviceName(deviceName)
+//                            .setApp(androidAppUrl)
+                            .setAppPackage(props.getProperty("androidAppPackage"))
+                            .setAppActivity(props.getProperty("androidAppActivity"))
+                            .setNewCommandTimeout(Duration.ofMinutes(5));
+
+                    driver = new AndroidDriver(url, androidOptions);
+                    break;
+                case "iOS":
+                    String iOSAppUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(props.getProperty("iOSAppLocation"))).getFile();
+                    XCUITestOptions iOSOptions = new XCUITestOptions()
+                            .setUdid(udid)
+                            .setDeviceName(deviceName)
+//                            .setApp(iOSAppUrl)
+                            .setBundleId(props.getProperty("iOSBundleId"))
+                            .setNewCommandTimeout(Duration.ofMinutes(5));
+                    driver = new IOSDriver(url, iOSOptions);
+                    break;
+                default:
+                    throw new Exception("Invalid platform! "+ platformName);
+
+            }
+
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -68,6 +89,11 @@ public class BaseTest {
         e.click();
     }
 
+    public void clear(WebElement e){
+        waitForVisibility(e);
+        e.clear();
+    }
+
     public void sendKeys(WebElement e, String txt){
         waitForVisibility(e);
         e.sendKeys(txt);
@@ -77,6 +103,17 @@ public class BaseTest {
         waitForVisibility(e);
         return e.getAttribute(attribute);
     }
+
+    public String getText(WebElement e){
+        switch (platform){
+            case "Android":
+                return getAttribute(e, "text");
+            case "iOS":
+                return getAttribute(e, "label");
+        }
+        return null;
+    }
+
 
     @AfterTest
     public void afterTest(){
