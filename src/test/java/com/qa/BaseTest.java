@@ -23,29 +23,39 @@ import java.util.Properties;
 public class BaseTest {
     protected static AppiumDriver driver;
     protected static Properties props;
+    protected static Properties strings;
     InputStream inputStream;
 
-    @Parameters({"platformName", "udid"})
+    @Parameters({"platformName", "udid", "deviceName"})
     @BeforeTest
-    public void beforeTest(String platformName, String udid) throws IOException {
-        props = new Properties();
-        String propFileName = "config.properties";
-        inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
-        props.load(inputStream);
-
-        String appUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(props.getProperty("androidAppLocation"))).getFile();
-
-        UiAutomator2Options options = new UiAutomator2Options()
-                .setUdid(udid)
-                .setApp(appUrl)
-                .setAppPackage(props.getProperty("androidAppPackage"))
-                .setAppActivity(props.getProperty("androidAppActivity"))
-                .setNewCommandTimeout(Duration.ofMinutes(5));
-
-        URL url = new URL(props.getProperty("appiumURL"));
-
+    public void beforeTest(String platformName, String udid, String deviceName) {
         System.out.println("platformName: " + platformName);
-        driver = new AndroidDriver(url, options);
+        String propFileName = "config.properties";
+        String stringsFileName = "strings/strings.properties";
+
+        try(InputStream propsInputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
+            InputStream stringsInputStream = getClass().getClassLoader().getResourceAsStream(stringsFileName)) {
+            props = new Properties();
+            props.load(propsInputStream);
+
+            strings = new Properties();
+            strings.load(stringsInputStream);
+
+            String appUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(props.getProperty("androidAppLocation"))).getFile();
+
+            UiAutomator2Options options = new UiAutomator2Options()
+                    .setUdid(udid)
+                    .setDeviceName(deviceName)
+                    .setApp(appUrl)
+                    .setAppPackage(props.getProperty("androidAppPackage"))
+                    .setAppActivity(props.getProperty("androidAppActivity"))
+                    .setNewCommandTimeout(Duration.ofMinutes(5));
+
+            URL url = new URL(props.getProperty("appiumURL"));
+            driver = new AndroidDriver(url, options);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void waitForVisibility(WebElement e){
