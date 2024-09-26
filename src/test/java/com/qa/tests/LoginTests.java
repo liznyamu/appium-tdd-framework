@@ -38,6 +38,8 @@ public class LoginTests extends BaseTest {
             throw new RuntimeException(e);
         }
 
+//        closeApp();
+//        launchApp();
     }
 
     @AfterClass
@@ -47,6 +49,7 @@ public class LoginTests extends BaseTest {
 
     @BeforeMethod
     public void beforeMethod(Method m) {
+        launchApp();
         loginPage = new LoginPage();
         System.out.println("\n****** starting test: " + m.getName() + " ******\n");
 
@@ -54,7 +57,7 @@ public class LoginTests extends BaseTest {
 
     @AfterMethod
     public void afterMethod() {
-
+        closeApp();
     }
 
     @Test

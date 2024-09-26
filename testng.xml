@@ -5,17 +5,21 @@
         <listener class-name="com.qa.listeners.TestListener"/>
     </listeners>
     <test verbose="2" preserve-order="true" name="appium/TDDFramework">
-        <parameter name="platformName" value="Android"/>
+        <!--<parameter name="platformName" value="Android"/>
         <parameter name="udid" value="emulator-5554"/>
-        <parameter name="deviceName" value="Redmi_Pro"/>
-<!--        <parameter name="platformName" value="iOS"/>-->
-<!--        <parameter name="udid" value="70C06531-5518-48CD-82C6-950254E65848"/>-->
-<!--        <parameter name="deviceName" value="iPhone_16_Plus"/>-->
+        <parameter name="deviceName" value="Redmi_Pro"/>-->
+        <parameter name="platformName" value="iOS"/>
+        <parameter name="udid" value="70C06531-5518-48CD-82C6-950254E65848"/>
+        <parameter name="deviceName" value="iPhone_16_Plus"/>
         <classes>
-            <!--            <class name="qa.mobile.test1"></class>-->
             <class name="com.qa.tests.LoginTests">
 <!--                <methods>-->
 <!--                    <include name="invalidUserName" />-->
+<!--                </methods>-->
+            </class>
+            <class name="com.qa.tests.ProductTests">
+<!--                <methods>-->
+<!--                    <include name="validateProductOnProductsPage"/>-->
 <!--                </methods>-->
             </class>
         </classes>

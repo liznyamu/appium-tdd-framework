@@ -11,9 +11,9 @@
 - [x] Exception Handling
 - [x] Add abstraction layer for test data
 - [x] Add abstraction layer for static text
-- [ ] Multiple platform support - iOS and Android
-- [ ] Add More Test Classes / Defining common elements
-- [ ] Failure recovery / Fail safe test cases
+- [x] Multiple platform support - iOS and Android
+- [x] Add More Test Classes / Defining common elements
+- [x] Failure recovery / Fail safe test cases - using @BeforeMethod and @AfterMethod
 - [ ] Logging framework
 - [ ] Reporting framework
 - [ ] Capture Screenshots/Videos

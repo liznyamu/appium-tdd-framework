@@ -28,22 +28,33 @@ public class LoginPage extends BaseTest {
 
     public LoginPage enterUserName(String username) {
         clear(usernameTxtFld);
+        System.out.println("login with " + username);
         sendKeys(usernameTxtFld, username);
         return this;
     }
 
     public LoginPage enterPassword(String password) {
         clear(passwordTxtFld);
+        System.out.println("password is " + password);
         sendKeys(passwordTxtFld, password);
         return this;
     }
 
     public ProductsPage pressLoginBtn() {
         click(loginBtn);
+        System.out.println("press login button");
         return new ProductsPage();
     }
 
+    public ProductsPage login(String username, String password) {
+        enterUserName(username);
+        enterPassword(password);
+        return pressLoginBtn();
+    }
+
     public String getErrTxt() {
-        return getText(errTxt);
+        String err = getText(errTxt);
+        System.out.println("error text is - " + err);
+        return err;
     }
 }

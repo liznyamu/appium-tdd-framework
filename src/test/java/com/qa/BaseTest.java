@@ -2,6 +2,7 @@ package com.qa;
 
 import com.qa.utils.TestUtils;
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.IOSDriver;
@@ -112,6 +113,28 @@ public class BaseTest {
                 return getAttribute(e, "label");
         }
         return null;
+    }
+
+    public void closeApp() {
+        switch (platform){
+            case "Android":
+                ((InteractsWithApps) driver).terminateApp(props.getProperty("androidAppPackage"));
+                break;
+            case "iOS":
+                ((InteractsWithApps) driver).terminateApp(props.getProperty("iOSBundleId"));
+                break;
+        }
+    }
+
+    public void launchApp() {
+        switch (platform){
+            case "Android":
+                ((InteractsWithApps) driver).activateApp(props.getProperty("androidAppPackage"));
+                break;
+            case "iOS":
+                ((InteractsWithApps) driver).activateApp(props.getProperty("iOSBundleId"));
+                break;
+        }
     }
 
 
