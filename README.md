@@ -15,10 +15,10 @@
 - [x] Add More Test Classes / Defining common elements
 - [x] Failure recovery / Fail safe test cases - using @BeforeMethod and @AfterMethod
 - [x] Scrolling - Different Scrolling Mechanisms
-- [ ] Capture Screenshots/Videos
+- [x] Capture Screenshots/Videos
+- [ ] Parallel Execution on Android and iOS
 - [ ] Logging framework
 - [ ] Reporting framework
-- [ ] Parallel Execution on Android and iOS
 - [ ] Programmatically start the Appium Server
 - [ ] Integrating with Git
 - [ ] Integrating with Jenkins

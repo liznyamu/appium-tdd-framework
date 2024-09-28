@@ -38,11 +38,6 @@ public class ProductTests extends BaseTest {
         } catch (JSONException | IOException e) {
             throw new RuntimeException(e);
         }
-
-
-/*       TODO remove below - no longer needed
-        closeApp();
-        launchApp();*/
     }
 
     @AfterClass
@@ -90,7 +85,7 @@ public class ProductTests extends BaseTest {
 
         productDetailsPage = productsPage.pressSLBTitle();
 
-        String SLBTitle = productDetailsPage.getSLBTitle();
+        String SLBTitle = productDetailsPage.getSLBTitle() + "fail test";
         sa.assertEquals(SLBTitle, strings.getProperty("product_details_page_slb_title"));
 
         String SLBTxt = productDetailsPage.getSLBTxt();

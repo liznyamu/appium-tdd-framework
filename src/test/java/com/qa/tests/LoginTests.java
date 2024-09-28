@@ -37,9 +37,6 @@ public class LoginTests extends BaseTest {
         } catch (JSONException | IOException e) {
             throw new RuntimeException(e);
         }
-
-//        closeApp();
-//        launchApp();
     }
 
     @AfterClass
@@ -49,6 +46,7 @@ public class LoginTests extends BaseTest {
 
     @BeforeMethod
     public void beforeMethod(Method m) {
+        System.out.println("LoginTest before method");
         launchApp();
         loginPage = new LoginPage();
         System.out.println("\n****** starting test: " + m.getName() + " ******\n");
@@ -57,6 +55,7 @@ public class LoginTests extends BaseTest {
 
     @AfterMethod
     public void afterMethod() {
+        System.out.println("LoginTest after method");
         closeApp();
     }
 
@@ -67,7 +66,7 @@ public class LoginTests extends BaseTest {
         loginPage.pressLoginBtn();
 
         String actualTxt = loginPage.getErrTxt();
-        String expectedErrTxt = strings.getProperty("err_invalid_username_or_password");
+        String expectedErrTxt = strings.getProperty("err_invalid_username_or_password") + "fail this test";
         System.out.println("actual error txt - " + actualTxt + "\nexpected error txt - " + expectedErrTxt);
 
         Assert.assertEquals(actualTxt, expectedErrTxt);
