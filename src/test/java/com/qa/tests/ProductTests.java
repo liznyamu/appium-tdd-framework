@@ -39,8 +39,10 @@ public class ProductTests extends BaseTest {
             throw new RuntimeException(e);
         }
 
-//        closeApp();
-//        launchApp();
+
+/*       TODO remove below - no longer needed
+        closeApp();
+        launchApp();*/
     }
 
     @AfterClass
@@ -63,8 +65,9 @@ public class ProductTests extends BaseTest {
     @AfterMethod
     public void afterMethod() {
         closeApp();
-//        settingsPage = productsPage.pressSettingsBtn();
-//        settingsPage.pressLogoutBtn();
+/*       TODO remove below - no longer needed -- check why iOS fails to click the settings btn
+        settingsPage = productsPage.pressSettingsBtn();
+        settingsPage.pressLogoutBtn();*/
     }
 
     @Test
@@ -86,15 +89,21 @@ public class ProductTests extends BaseTest {
         SoftAssert sa = new SoftAssert();
 
         productDetailsPage = productsPage.pressSLBTitle();
-        productDetailsPage.getSLBTitle();
-
 
         String SLBTitle = productDetailsPage.getSLBTitle();
         sa.assertEquals(SLBTitle, strings.getProperty("product_details_page_slb_title"));
 
-        String SLBPrice = productDetailsPage.getSLBTxt();
-        sa.assertEquals(SLBPrice, strings.getProperty("product_details_page_slb_txt"));
+        String SLBTxt = productDetailsPage.getSLBTxt();
+        sa.assertEquals(SLBTxt, strings.getProperty("product_details_page_slb_txt"));
 
+        String SLBPrice = productDetailsPage.scrollToSLBPriceAndGetSLBPrice();
+        sa.assertEquals(SLBPrice, strings.getProperty("products_details_page_slb_price"));
+
+
+       /* // NOTE this check was for iOS tutorial only - the SLBPrice is already visible on iOS
+        productDetailsPage.scrollPage();
+        sa.assertTrue(productDetailsPage.isAddToCartBtnDisplayed(), "Add to Cart Btn is displayed");
+*/
         sa.assertAll();
 
         productsPage = productDetailsPage.pressBackToProductsBtn();

@@ -22,6 +22,9 @@ public class ProductDetailsPage extends MenuPage {
     @iOSXCUITFindBy(id = "test-BACK TO PRODUCTS")
     WebElement backToProductsBtn;
 
+    @iOSXCUITFindBy(id = "test-ADD TO CART") WebElement addToCartBtn;
+    @iOSXCUITFindBy(id = "test-Price") WebElement SLBPrice;
+
     public ProductDetailsPage() {
         PageFactory.initElements(new AppiumFieldDecorator(driver), this);
     }
@@ -36,6 +39,26 @@ public class ProductDetailsPage extends MenuPage {
         String txt = getText(SLBTxt);
         System.out.println("txt is - " + txt);
         return txt;
+    }
+
+    public String scrollToSLBPriceAndGetSLBPrice(){
+        switch (platform){
+            case "Android":
+                return getText(androidScrollToElement());
+            case "iOS":
+                // TODO - this scroll is for tutorial purposes -- its not need as the SLB price is visible on iOS
+                iOSScrollToElement();
+                return getText(SLBPrice);
+        }
+        return  null;
+    }
+
+    public void scrollPage(){
+        iOSScrollToElement();
+    }
+
+    public Boolean isAddToCartBtnDisplayed(){
+        return addToCartBtn.isDisplayed();
     }
 
     public ProductsPage pressBackToProductsBtn(){
