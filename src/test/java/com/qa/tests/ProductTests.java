@@ -23,6 +23,8 @@ public class ProductTests extends BaseTest {
     SettingsPage settingsPage;
     ProductDetailsPage productDetailsPage;
 
+    // Note: we are not manipulating data on this class variable - we're just reading data from it
+    //          - no need to make it a local variable / thread local
     JSONObject loginUsers;
 
 
@@ -71,10 +73,10 @@ public class ProductTests extends BaseTest {
 
 
         String SLBTitle = productsPage.getSLBTitle();
-        sa.assertEquals(SLBTitle, strings.getProperty("products_page_slb_title"));
+        sa.assertEquals(SLBTitle, getStrings().getProperty("products_page_slb_title"));
 
         String SLBPrice = productsPage.getSLBPrice();
-        sa.assertEquals(SLBPrice, strings.getProperty("products_page_slb_price"));
+        sa.assertEquals(SLBPrice, getStrings().getProperty("products_page_slb_price"));
 
         sa.assertAll();
     }
@@ -86,13 +88,13 @@ public class ProductTests extends BaseTest {
         productDetailsPage = productsPage.pressSLBTitle();
 
         String SLBTitle = productDetailsPage.getSLBTitle() + "fail test";
-        sa.assertEquals(SLBTitle, strings.getProperty("product_details_page_slb_title"));
+        sa.assertEquals(SLBTitle, getStrings().getProperty("product_details_page_slb_title"));
 
         String SLBTxt = productDetailsPage.getSLBTxt();
-        sa.assertEquals(SLBTxt, strings.getProperty("product_details_page_slb_txt"));
+        sa.assertEquals(SLBTxt, getStrings().getProperty("product_details_page_slb_txt"));
 
         String SLBPrice = productDetailsPage.scrollToSLBPriceAndGetSLBPrice();
-        sa.assertEquals(SLBPrice, strings.getProperty("products_details_page_slb_price"));
+        sa.assertEquals(SLBPrice, getStrings().getProperty("products_details_page_slb_price"));
 
 
        /* // NOTE this check was for iOS tutorial only - the SLBPrice is already visible on iOS

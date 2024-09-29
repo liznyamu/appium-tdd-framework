@@ -23,7 +23,7 @@ public class LoginPage extends BaseTest {
     WebElement errTxt;
 
     public LoginPage() {
-        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+        PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
     }
 
     public LoginPage enterUserName(String username) {

@@ -22,6 +22,8 @@ public class LoginTests extends BaseTest {
     LoginPage loginPage;
     ProductsPage productsPage;
 
+    // Note: we are not manipulating data on this class variable - we're just reading data from it
+    //          - no need to make it a local variable / thread local
     JSONObject loginUsers;
 
 
@@ -46,7 +48,6 @@ public class LoginTests extends BaseTest {
 
     @BeforeMethod
     public void beforeMethod(Method m) {
-        System.out.println("LoginTest before method");
         launchApp();
         loginPage = new LoginPage();
         System.out.println("\n****** starting test: " + m.getName() + " ******\n");
@@ -55,7 +56,6 @@ public class LoginTests extends BaseTest {
 
     @AfterMethod
     public void afterMethod() {
-        System.out.println("LoginTest after method");
         closeApp();
     }
 
@@ -66,7 +66,7 @@ public class LoginTests extends BaseTest {
         loginPage.pressLoginBtn();
 
         String actualTxt = loginPage.getErrTxt();
-        String expectedErrTxt = strings.getProperty("err_invalid_username_or_password") + "fail this test";
+        String expectedErrTxt = getStrings().getProperty("err_invalid_username_or_password");
         System.out.println("actual error txt - " + actualTxt + "\nexpected error txt - " + expectedErrTxt);
 
         Assert.assertEquals(actualTxt, expectedErrTxt);
@@ -81,7 +81,7 @@ public class LoginTests extends BaseTest {
         loginPage.pressLoginBtn();
 
         String actualTxt = loginPage.getErrTxt();
-        String expectedErrTxt = strings.getProperty("err_invalid_username_or_password");
+        String expectedErrTxt = getStrings().getProperty("err_invalid_username_or_password");
         System.out.println("actual error txt - " + actualTxt + "\nexpected error txt - " + expectedErrTxt);
         Assert.assertEquals(actualTxt, expectedErrTxt);
     }
@@ -94,7 +94,7 @@ public class LoginTests extends BaseTest {
 
 
         String actualProductTitle = productsPage.getTitle();
-        String expectedProductTitle = strings.getProperty("product_title");
+        String expectedProductTitle = getStrings().getProperty("product_title");
         System.out.println("actual product title - " + actualProductTitle + "\nexpected product txt - " + expectedProductTitle);
         Assert.assertEquals(actualProductTitle, expectedProductTitle);
     }

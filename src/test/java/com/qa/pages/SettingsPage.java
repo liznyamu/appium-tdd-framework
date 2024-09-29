@@ -13,7 +13,7 @@ public class SettingsPage extends BaseTest {
     private WebElement logoutBtn;
 
     public SettingsPage(){
-        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+        PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
     }
 
     public LoginPage pressLogoutBtn(){

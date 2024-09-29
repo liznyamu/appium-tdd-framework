@@ -26,7 +26,7 @@ public class ProductDetailsPage extends MenuPage {
     @iOSXCUITFindBy(id = "test-Price") WebElement SLBPrice;
 
     public ProductDetailsPage() {
-        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+        PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
     }
 
     public String getSLBTitle() {
@@ -42,7 +42,7 @@ public class ProductDetailsPage extends MenuPage {
     }
 
     public String scrollToSLBPriceAndGetSLBPrice(){
-        switch (platform){
+        switch (getPlatform()){
             case "Android":
                 return getText(androidScrollToElement());
             case "iOS":

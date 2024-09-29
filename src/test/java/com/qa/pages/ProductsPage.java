@@ -22,7 +22,7 @@ public class ProductsPage extends MenuPage {
 
 
     public ProductsPage() {
-        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+        PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
     }
 
     public String getTitle() {

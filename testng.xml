@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="All Test Suite">
+<suite name="All Test Suite" parallel="tests">
     <listeners>
         <listener class-name="com.qa.listeners.TestListener"/>
     </listeners>
-    <test verbose="2" preserve-order="true" name="appium/TDDFramework">
-<!--        <parameter name="emulator" value="true"/>-->
-<!--        <parameter name="platformName" value="Android"/>-->
-<!--        <parameter name="udid" value="emulator-5554"/>-->
-<!--        <parameter name="deviceName" value="Medium_Phone_API_35"/>-->
+    <test verbose="2" preserve-order="true" name="Android">
+        <parameter name="emulator" value="true"/>
+        <parameter name="platformName" value="Android"/>
+        <parameter name="udid" value="emulator-5554"/>
+        <parameter name="deviceName" value="Medium_Phone_API_35"/>
+        <parameter name="systemPort" value="10000"/>
+        <parameter name="chromeDriverPort" value="11000"/>
+        <classes>
+            <class name="com.qa.tests.LoginTests"/>
+<!--            <class name="com.qa.tests.ProductTests"/>-->
+        </classes>
+    </test>
+
+    <test verbose="2" preserve-order="true" name="iOS">
         <parameter name="platformName" value="iOS"/>
         <parameter name="udid" value="70C06531-5518-48CD-82C6-950254E65848"/>
         <parameter name="deviceName" value="iPhone_16_Plus"/>
+        <parameter name="wdaLocalPort" value="10001"/>
+        <parameter name="webkitDebugProxyPort" value="11001"/>
         <classes>
-            <class name="com.qa.tests.LoginTests">
-                <methods>
-                    <include name="invalidUserName" />
-                </methods>
-            </class>
-            <class name="com.qa.tests.ProductTests">
-                <methods>
-                    <include name="validateProductOnProductsDetailsPage"/>
-                </methods>
-            </class>
+            <class name="com.qa.tests.LoginTests"/>
+<!--            <class name="com.qa.tests.ProductTests"/>-->
         </classes>
     </test>
 </suite>

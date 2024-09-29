@@ -7,7 +7,6 @@ import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.ios.IOSStartScreenRecordingOptions;
 import io.appium.java_client.ios.options.XCUITestOptions;
 import io.appium.java_client.screenrecording.CanRecordScreen;
 import org.openqa.selenium.By;
@@ -25,31 +24,81 @@ import java.time.Duration;
 import java.util.*;
 
 public class BaseTest {
-    protected static AppiumDriver driver;
-    protected static Properties props;
-    protected static Properties strings;
-    protected static String platform;
-    protected static String dateTime;
-    TestUtils utils;
+    // Global variables
+    protected static ThreadLocal<AppiumDriver> driver = new ThreadLocal<>();
+    protected static ThreadLocal<Properties> props = new ThreadLocal<>();
+    protected static ThreadLocal<Properties> strings = new ThreadLocal<>();
+    protected static ThreadLocal<String> platform = new ThreadLocal<>();
+    protected static ThreadLocal<String> dateTime = new ThreadLocal<>();
 
-    @Parameters({"platformName", "udid", "deviceName", "emulator"})
+    public AppiumDriver getDriver() {
+        return driver.get();
+    }
+
+    public void setDriver(AppiumDriver driver1) {
+        driver.set(driver1);
+    }
+
+    public Properties getProps() {
+        return props.get();
+    }
+
+    public void setProps(Properties props1) {
+        props.set(props1);
+    }
+
+    public Properties getStrings() {
+        return strings.get();
+    }
+
+    public void setStrings(Properties strings1) {
+        strings.set(strings1);
+    }
+
+    public String getPlatform() {
+        return platform.get();
+    }
+
+    public void setPlatform(String platform1) {
+        platform.set(platform1);
+    }
+
+    public String getDateTime() {
+        return dateTime.get();
+    }
+
+    public void setDateTime(String dateTime1) {
+        dateTime.set(dateTime1);
+    }
+
+    @Parameters({"platformName", "udid", "deviceName",
+            "emulator", "systemPort", "chromeDriverPort",
+            "wdaLocalPort", "webkitDebugProxyPort"})
     @BeforeTest
-    public void beforeTest(String platformName, String udid, String deviceName, @Optional("Android") String emulator) {
-        utils = new TestUtils();
-        dateTime = utils.getDateTime();
+    public void beforeTest(String platformName, String udid, String deviceName,
+                           @Optional("androidOnly") String emulator, @Optional("androidOnly") String systemPort,
+                           @Optional("androidOnly") String chromeDriverPort, @Optional("iOSOnly") String wdaLocalPort,
+                           @Optional("iOSOnly") String webkitDebugProxyPort ) {
+        TestUtils utils = new TestUtils();
+        setDateTime(utils.dateTime());
 
         System.out.println("platformName: " + platformName);
-        platform = platformName;
+        setPlatform( platformName);
+
         String propFileName = "config.properties";
         String stringsFileName = "strings/strings.properties";
 
+        Properties props = new Properties();
+        Properties strings = new Properties();
+        AppiumDriver driver;
         try (InputStream propsInputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
              InputStream stringsInputStream = getClass().getClassLoader().getResourceAsStream(stringsFileName)) {
-            props = new Properties();
-            props.load(propsInputStream);
 
-            strings = new Properties();
+            props.load(propsInputStream);
+            setProps(props);
+
             strings.load(stringsInputStream);
+            setStrings(strings);
 
             URL url = new URL(props.getProperty("appiumURL"));
             switch (platformName) {
@@ -61,7 +110,9 @@ public class BaseTest {
 //                            .setApp(androidAppUrl)
                             .setAppPackage(props.getProperty("androidAppPackage"))
                             .setAppActivity(props.getProperty("androidAppActivity"))
-                            .setNewCommandTimeout(Duration.ofMinutes(5));
+                            .setNewCommandTimeout(Duration.ofMinutes(5))
+                            .setSystemPort(Integer.parseInt(systemPort))
+                            .setChromedriverPort(Integer.parseInt(chromeDriverPort));
 
                     if (emulator.equalsIgnoreCase("true")) {
                         androidOptions.setAvd(deviceName)
@@ -79,14 +130,17 @@ public class BaseTest {
                             .setBundleId(props.getProperty("iOSBundleId"))
                             .setNewCommandTimeout(Duration.ofMinutes(5))
                             .setSimulatorStartupTimeout(Duration.ofMinutes(5))
-                            .setSimpleIsVisibleCheck(true);
+                            .setSimpleIsVisibleCheck(true)
+                            .setWdaLocalPort(Integer.parseInt(wdaLocalPort));
+                    // webkitDebugProxyPort capability  not set
+
                     driver = new IOSDriver(url, iOSOptions);
                     break;
                 default:
                     throw new Exception("Invalid platform! " + platformName);
-
             }
 
+            setDriver(driver);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -95,33 +149,20 @@ public class BaseTest {
 
     @BeforeMethod
     public void beforeMethod() {
-        System.out.println("super before method");
         // Docs - https://appium.readthedocs.io/en/latest/en/commands/device/recording-screen/start-recording-screen/
 
         //  Failure to record iOS videos Refer to https://github.com/appium/appium/issues/16372
 //        ((CanRecordScreen) driver).startRecordingScreen(new IOSStartScreenRecordingOptions().withVideoScale("1080:1920"));
-        ((CanRecordScreen) driver).startRecordingScreen();
+        ((CanRecordScreen) getDriver()).startRecordingScreen();
 
     }
 
     @AfterMethod
     public void afterMethod(ITestResult result) {
-        System.out.println("super after method");
-        String media = ((CanRecordScreen) driver).stopRecordingScreen();
+        String media = ((CanRecordScreen) getDriver()).stopRecordingScreen();
 
-        if(result.getStatus() == 2){
-            Map<String, String> params = result.getTestContext().getCurrentXmlTest().getAllParameters();
-
-            String dir = "videos" + File.separator
-                    + params.get("platformName") + "_" + params.get("deviceName") + File.separator
-                    + dateTime + File.separator
-                    + result.getTestClass().getRealClass().getSimpleName();
-
-            // TODO do we need this ? - we didn't add the same on capturing screenshots
-            File videoDir = new File(dir);
-            if (!videoDir.exists()) {
-                videoDir.mkdirs();
-            }
+        if (result.getStatus() == 2) {
+            File videoDir = getFile(result);
 
 
             try (FileOutputStream stream = new FileOutputStream(videoDir + File.separator + result.getName() + ".mp4")) {
@@ -133,16 +174,27 @@ public class BaseTest {
 
     }
 
-    public AppiumDriver getDriver() {
-        return driver;
-    }
+    private File getFile(ITestResult result) {
+        Map<String, String> params = result.getTestContext().getCurrentXmlTest().getAllParameters();
 
-    public String getDateTime() {
-        return dateTime;
+        String dir = "videos" + File.separator
+                + params.get("platformName") + "_" + params.get("deviceName") + File.separator
+                + getDateTime() + File.separator
+                + result.getTestClass().getRealClass().getSimpleName();
+
+        File videoDir = new File(dir);
+        // Added synchronization for tutorial purposes - can be added on getting race conditions
+        synchronized (videoDir){
+            if (!videoDir.exists()) {
+                videoDir.mkdirs();
+            }
+        }
+
+        return videoDir;
     }
 
     public void waitForVisibility(WebElement e) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TestUtils.WAIT));
+        WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(TestUtils.WAIT));
         wait.until(ExpectedConditions.visibilityOf(e));
     }
 
@@ -167,7 +219,7 @@ public class BaseTest {
     }
 
     public String getText(WebElement e) {
-        switch (platform) {
+        switch (getPlatform()) {
             case "Android":
                 return getAttribute(e, "text");
             case "iOS":
@@ -177,23 +229,23 @@ public class BaseTest {
     }
 
     public void closeApp() {
-        switch (platform) {
+        switch (getPlatform()) {
             case "Android":
-                ((InteractsWithApps) driver).terminateApp(props.getProperty("androidAppPackage"));
+                ((InteractsWithApps) getDriver()).terminateApp(getProps().getProperty("androidAppPackage"));
                 break;
             case "iOS":
-                ((InteractsWithApps) driver).terminateApp(props.getProperty("iOSBundleId"));
+                ((InteractsWithApps) getDriver()).terminateApp(getProps().getProperty("iOSBundleId"));
                 break;
         }
     }
 
     public void launchApp() {
-        switch (platform) {
+        switch (getPlatform()) {
             case "Android":
-                ((InteractsWithApps) driver).activateApp(props.getProperty("androidAppPackage"));
+                ((InteractsWithApps) getDriver()).activateApp(getProps().getProperty("androidAppPackage"));
                 break;
             case "iOS":
-                ((InteractsWithApps) driver).activateApp(props.getProperty("iOSBundleId"));
+                ((InteractsWithApps) getDriver()).activateApp(getProps().getProperty("iOSBundleId"));
                 break;
         }
     }
@@ -204,13 +256,13 @@ public class BaseTest {
         Homework - check why and where we used UiSelector on Android*/
 
         // with multiple scrollable parent locators on the Android page
-       /* return driver.findElement(AppiumBy.androidUIAutomator(
+       /* return getDriver().findElement(AppiumBy.androidUIAutomator(
                 "new UiScrollable(new UiSelector()"
                 + ".description(\"android.widget.ScrollView\")).scrollIntoView("
                 + "new UiSelector().description(\"test-Price\"));"));*/
 
         // with 1 scrollable  element on the Android page
-        return driver.findElement(AppiumBy.androidUIAutomator(
+        return getDriver().findElement(AppiumBy.androidUIAutomator(
                 "new UiScrollable(new UiSelector()"
                         + ".scrollable(true)).scrollIntoView("
                         + "new UiSelector().description(\"test-Price\"));"));
@@ -219,7 +271,7 @@ public class BaseTest {
     public void iOSScrollToElement() {
 
         // scroll without the accessibility id ie use Scrollable Parent
-       /* RemoteWebElement parent = (RemoteWebElement) driver.findElement(By.className("XCUIElementTypeScrollView"));
+       /* RemoteWebElement parent = (RemoteWebElement) getDriver().findElement(By.className("XCUIElementTypeScrollView"));
         String parentId = parent.getId();
         HashMap<String, String> scrollObject = new HashMap<>();
         scrollObject.put("element", parentId);
@@ -228,17 +280,17 @@ public class BaseTest {
         scrollObject.put("name", "test-ADD TO CART");*/
 
         // scroll to element with accessibility id set
-        RemoteWebElement element = (RemoteWebElement) driver.findElement(By.name("test-ADD TO CART"));
+        RemoteWebElement element = (RemoteWebElement) getDriver().findElement(By.name("test-ADD TO CART"));
         String elementId = element.getId();
         HashMap<String, String> scrollObject = new HashMap<>();
         scrollObject.put("element", elementId);
         scrollObject.put("toVisible", "<any text here>");
-        driver.executeScript("mobile:scroll", scrollObject);
+        getDriver().executeScript("mobile:scroll", scrollObject);
     }
 
     @AfterTest
     public void afterTest() {
-        driver.quit();
+        getDriver().quit();
     }
 
 }
