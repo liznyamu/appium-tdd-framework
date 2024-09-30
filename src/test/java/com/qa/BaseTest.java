@@ -1,5 +1,7 @@
 package com.qa;
 
+import com.aventstack.extentreports.Status;
+import com.qa.report.ExtentReport;
 import com.qa.utils.TestUtils;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
@@ -9,6 +11,12 @@ import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
 import io.appium.java_client.screenrecording.CanRecordScreen;
+import io.appium.java_client.service.local.AppiumDriverLocalService;
+import io.appium.java_client.service.local.AppiumServiceBuilder;
+import io.appium.java_client.service.local.flags.GeneralServerFlag;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
@@ -29,7 +37,13 @@ public class BaseTest {
     protected static ThreadLocal<Properties> props = new ThreadLocal<>();
     protected static ThreadLocal<Properties> strings = new ThreadLocal<>();
     protected static ThreadLocal<String> platform = new ThreadLocal<>();
+    protected static ThreadLocal<String> deviceName = new ThreadLocal<>();
     protected static ThreadLocal<String> dateTime = new ThreadLocal<>();
+    private static AppiumDriverLocalService server;
+    TestUtils utils = new TestUtils();
+
+    // Refer to https://logging.apache.org/log4j/2.x/manual/api.html#loggers
+//    static Logger log = LogManager.getLogger(BaseTest.class.getName());
 
     public AppiumDriver getDriver() {
         return driver.get();
@@ -63,6 +77,14 @@ public class BaseTest {
         platform.set(platform1);
     }
 
+    public String getDeviceName() {
+        return deviceName.get();
+    }
+
+    public void setDeviceName(String deviceName1) {
+        deviceName.set(deviceName1);
+    }
+
     public String getDateTime() {
         return dateTime.get();
     }
@@ -71,6 +93,30 @@ public class BaseTest {
         dateTime.set(dateTime1);
     }
 
+    @BeforeSuite
+    public void beforeSuite() {
+        ThreadContext.put("ROUTINGKEY", "serverLogs");
+        server = getAppiumServerDefault();
+        if (!server.isRunning()) {
+            server.start();
+            server.clearOutPutStreams();
+            utils.log().info("Appium server started");
+        } else {
+            utils.log().info("Appium server already running");
+        }
+    }
+
+    @AfterSuite
+    public void afterSuite() {
+        server.stop();
+        utils.log().info("Appium server stopped");
+    }
+
+    public AppiumDriverLocalService getAppiumServerDefault() {
+        return AppiumDriverLocalService.buildDefaultService();
+    }
+
+
     @Parameters({"platformName", "udid", "deviceName",
             "emulator", "systemPort", "chromeDriverPort",
             "wdaLocalPort", "webkitDebugProxyPort"})
@@ -78,12 +124,24 @@ public class BaseTest {
     public void beforeTest(String platformName, String udid, String deviceName,
                            @Optional("androidOnly") String emulator, @Optional("androidOnly") String systemPort,
                            @Optional("androidOnly") String chromeDriverPort, @Optional("iOSOnly") String wdaLocalPort,
-                           @Optional("iOSOnly") String webkitDebugProxyPort ) {
+                           @Optional("iOSOnly") String webkitDebugProxyPort) {
+
         TestUtils utils = new TestUtils();
+
+        // logging in multi-threaded environment - parallel execution
+        String strFile = "logs" + File.separator + platformName + "_" + deviceName;
+        File logFile = new File(strFile);
+        if (!logFile.exists()) {
+            logFile.mkdirs();
+        }
+        ThreadContext.put("ROUTINGKEY", strFile);
+        utils.log().info("log path: " + strFile);
+
         setDateTime(utils.dateTime());
 
-        System.out.println("platformName: " + platformName);
-        setPlatform( platformName);
+        utils.log().info("platformName: " + platformName);
+        setPlatform(platformName);
+        setDeviceName(deviceName);
 
         String propFileName = "config.properties";
         String stringsFileName = "strings/strings.properties";
@@ -94,9 +152,11 @@ public class BaseTest {
         try (InputStream propsInputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
              InputStream stringsInputStream = getClass().getClassLoader().getResourceAsStream(stringsFileName)) {
 
+            utils.log().info("load: " + propFileName);
             props.load(propsInputStream);
             setProps(props);
 
+            utils.log().info("load: " + stringsFileName);
             strings.load(stringsInputStream);
             setStrings(strings);
 
@@ -104,6 +164,7 @@ public class BaseTest {
             switch (platformName) {
                 case "Android":
                     String androidAppUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(props.getProperty("androidAppLocation"))).getFile();
+                    utils.log().info("Android - appUrl is" + androidAppUrl);
                     UiAutomator2Options androidOptions = new UiAutomator2Options()
                             .setUdid(udid)
                             .setDeviceName(deviceName)
@@ -118,11 +179,11 @@ public class BaseTest {
                         androidOptions.setAvd(deviceName)
                                 .setAvdLaunchTimeout(Duration.ofMinutes(10));
                     }
-
                     driver = new AndroidDriver(url, androidOptions);
                     break;
                 case "iOS":
                     String iOSAppUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(props.getProperty("iOSAppLocation"))).getFile();
+                    utils.log().info("iOS - appUrl is" + iOSAppUrl);
                     XCUITestOptions iOSOptions = new XCUITestOptions()
                             .setUdid(udid)
                             .setDeviceName(deviceName)
@@ -141,7 +202,9 @@ public class BaseTest {
             }
 
             setDriver(driver);
+            utils.log().info("driver initialized: " + driver);
         } catch (Exception e) {
+            utils.log().fatal("driver initialization failure. ABORT!!!\n" + e);
             throw new RuntimeException(e);
         }
     }
@@ -159,6 +222,7 @@ public class BaseTest {
 
     @AfterMethod
     public void afterMethod(ITestResult result) {
+        TestUtils utils = new TestUtils();
         String media = ((CanRecordScreen) getDriver()).stopRecordingScreen();
 
         if (result.getStatus() == 2) {
@@ -167,7 +231,9 @@ public class BaseTest {
 
             try (FileOutputStream stream = new FileOutputStream(videoDir + File.separator + result.getName() + ".mp4")) {
                 stream.write(Base64.getDecoder().decode(media));
+                utils.log().info("video path: " + videoDir + File.separator + result.getName() + ".mp4");
             } catch (IOException e) {
+                utils.log().error("error during video capture: " + e);
                 throw new RuntimeException(e);
             }
         }
@@ -184,7 +250,7 @@ public class BaseTest {
 
         File videoDir = new File(dir);
         // Added synchronization for tutorial purposes - can be added on getting race conditions
-        synchronized (videoDir){
+        synchronized (videoDir) {
             if (!videoDir.exists()) {
                 videoDir.mkdirs();
             }
@@ -203,6 +269,14 @@ public class BaseTest {
         e.click();
     }
 
+    public void click(WebElement e, String msg) {
+        // TODO use optional parameters and log only when set -- instead overloading click()
+        waitForVisibility(e);
+        utils.log().info(msg);
+        ExtentReport.getTest().log(Status.INFO, msg);
+        e.click();
+    }
+
     public void clear(WebElement e) {
         waitForVisibility(e);
         e.clear();
@@ -213,19 +287,38 @@ public class BaseTest {
         e.sendKeys(txt);
     }
 
+    public void sendKeys(WebElement e, String txt, String msg) {
+        // TODO use optional parameters and log only when set -- instead overloading sendKeys()
+        waitForVisibility(e);
+        utils.log().info(msg);
+        ExtentReport.getTest().log(Status.INFO, msg);
+        e.sendKeys(txt);
+    }
+
     public String getAttribute(WebElement e, String attribute) {
         waitForVisibility(e);
         return e.getAttribute(attribute);
     }
 
     public String getText(WebElement e) {
-        switch (getPlatform()) {
-            case "Android":
-                return getAttribute(e, "text");
-            case "iOS":
-                return getAttribute(e, "label");
-        }
-        return null;
+        return switch (getPlatform()) {
+            case "Android" -> getAttribute(e, "text");
+            case "iOS" -> getAttribute(e, "label");
+            default -> null;
+        };
+    }
+
+    public String getText(WebElement e, String msg) {
+        // TODO use optional parameters and log only when set -- instead overloading click()
+        String txt = switch (getPlatform()) {
+            case "Android" -> getAttribute(e, "text");
+            case "iOS" -> getAttribute(e, "label");
+            default -> null;
+        };
+
+        utils.log().info(msg + txt);
+        ExtentReport.getTest().log(Status.INFO, msg + txt);
+        return txt;
     }
 
     public void closeApp() {

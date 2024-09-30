@@ -1,6 +1,7 @@
 package com.qa.pages;
 
 import com.qa.BaseTest;
+import com.qa.utils.TestUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
@@ -17,7 +18,7 @@ public class SettingsPage extends BaseTest {
     }
 
     public LoginPage pressLogoutBtn(){
-        click(logoutBtn);
+        click(logoutBtn, "press logout button");
         return new LoginPage();
     }
 }

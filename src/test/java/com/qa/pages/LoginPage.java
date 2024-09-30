@@ -1,6 +1,7 @@
 package com.qa.pages;
 
 import com.qa.BaseTest;
+import com.qa.utils.TestUtils;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
@@ -22,27 +23,28 @@ public class LoginPage extends BaseTest {
     @iOSXCUITFindBy(xpath = "//XCUIElementTypeOther[@name=\"test-Error message\"]/child::XCUIElementTypeStaticText")
     WebElement errTxt;
 
+    TestUtils utils = new TestUtils();
+
     public LoginPage() {
         PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
     }
 
     public LoginPage enterUserName(String username) {
+        // TODO remove clear() - tests should be application/user state agnostic
         clear(usernameTxtFld);
-        System.out.println("login with " + username);
-        sendKeys(usernameTxtFld, username);
+        sendKeys(usernameTxtFld, username, "login with " + username);
         return this;
     }
 
     public LoginPage enterPassword(String password) {
+        // TODO remove clear() - tests should be application/user state agnostic
         clear(passwordTxtFld);
-        System.out.println("password is " + password);
-        sendKeys(passwordTxtFld, password);
+        sendKeys(passwordTxtFld, password, "login with " + password);
         return this;
     }
 
     public ProductsPage pressLoginBtn() {
-        click(loginBtn);
-        System.out.println("press login button");
+        click(loginBtn, "press login button");
         return new ProductsPage();
     }
 
@@ -53,8 +55,6 @@ public class LoginPage extends BaseTest {
     }
 
     public String getErrTxt() {
-        String err = getText(errTxt);
-        System.out.println("error text is - " + err);
-        return err;
+        return getText(errTxt, "error text is - ");
     }
 }

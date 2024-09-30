@@ -12,8 +12,19 @@
         <parameter name="systemPort" value="10000"/>
         <parameter name="chromeDriverPort" value="11000"/>
         <classes>
-            <class name="com.qa.tests.LoginTests"/>
-<!--            <class name="com.qa.tests.ProductTests"/>-->
+            <class name="com.qa.tests.LoginTests">
+                <!--<methods>
+                    <include name="invalidUserName"/>
+                    <include name="invalidPassword"/>
+                    <include name="successfulLogin"/>
+                </methods>-->
+            </class>
+            <class name="com.qa.tests.ProductTests">
+                <!--<methods>
+                    <include name="validateProductOnProductsPage"/>
+                    <include name="validateProductOnProductsDetailsPage"/>
+                </methods>-->
+            </class>
         </classes>
     </test>
 
@@ -24,8 +35,20 @@
         <parameter name="wdaLocalPort" value="10001"/>
         <parameter name="webkitDebugProxyPort" value="11001"/>
         <classes>
-            <class name="com.qa.tests.LoginTests"/>
-<!--            <class name="com.qa.tests.ProductTests"/>-->
+            <class name="com.qa.tests.LoginTests">
+                <!--<methods>
+                    <include name="invalidUserName"/>
+                    <include name="invalidPassword"/>
+                    <include name="successfulLogin"/>
+                </methods>-->
+            </class>
+            <class name="com.qa.tests.ProductTests">
+                <!--<methods>
+                    <include name="validateProductOnProductsPage"/>
+                    <include name="validateProductOnProductsDetailsPage"/>
+                </methods>-->
+            </class>
         </classes>
     </test>
+
 </suite>

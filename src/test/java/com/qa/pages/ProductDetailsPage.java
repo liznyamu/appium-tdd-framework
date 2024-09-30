@@ -1,5 +1,6 @@
 package com.qa.pages;
 
+import com.qa.utils.TestUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
@@ -30,27 +31,23 @@ public class ProductDetailsPage extends MenuPage {
     }
 
     public String getSLBTitle() {
-        String title = getText(SLBTitle);
-        System.out.println("title is - " + title);
-        return title;
+        return getText(SLBTitle, "title is - ");
     }
 
     public String getSLBTxt() {
-        String txt = getText(SLBTxt);
-        System.out.println("txt is - " + txt);
-        return txt;
+        return getText(SLBTxt, "txt is - ");
     }
 
     public String scrollToSLBPriceAndGetSLBPrice(){
-        switch (getPlatform()){
-            case "Android":
-                return getText(androidScrollToElement());
-            case "iOS":
-                // TODO - this scroll is for tutorial purposes -- its not need as the SLB price is visible on iOS
+        return switch (getPlatform()) {
+            case "Android" -> getText(androidScrollToElement());
+            case "iOS" -> {
+                // TODO - this scroll is for tutorial purposes -- it's not need as the SLB price is visible on iOS
                 iOSScrollToElement();
-                return getText(SLBPrice);
-        }
-        return  null;
+                yield getText(SLBPrice);
+            }
+            default -> null;
+        };
     }
 
     public void scrollPage(){
@@ -62,8 +59,7 @@ public class ProductDetailsPage extends MenuPage {
     }
 
     public ProductsPage pressBackToProductsBtn(){
-        System.out.println("navigate back to products page");
-        click(backToProductsBtn);
+        click(backToProductsBtn, "navigate back to products page");
         return new ProductsPage();
     }
 

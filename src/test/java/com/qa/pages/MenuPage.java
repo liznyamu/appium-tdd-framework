@@ -1,6 +1,7 @@
 package com.qa.pages;
 
 import com.qa.BaseTest;
+import com.qa.utils.TestUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
@@ -18,9 +19,8 @@ public class MenuPage extends BaseTest {
     }
 
     public SettingsPage pressSettingsBtn(){
-        System.out.println("press Settings button");
         // TODO fails on iOS - menu is not opened
-        click(settingsBtn);
+        click(settingsBtn, "press Settings button");
         return new SettingsPage();
     }
 }

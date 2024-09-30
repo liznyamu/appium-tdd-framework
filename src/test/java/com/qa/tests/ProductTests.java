@@ -5,6 +5,7 @@ import com.qa.pages.LoginPage;
 import com.qa.pages.ProductDetailsPage;
 import com.qa.pages.ProductsPage;
 import com.qa.pages.SettingsPage;
+import com.qa.utils.TestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -26,6 +27,7 @@ public class ProductTests extends BaseTest {
     // Note: we are not manipulating data on this class variable - we're just reading data from it
     //          - no need to make it a local variable / thread local
     JSONObject loginUsers;
+    TestUtils utils = new TestUtils();
 
 
     @BeforeClass
@@ -52,7 +54,7 @@ public class ProductTests extends BaseTest {
         launchApp();
 
         loginPage = new LoginPage();
-        System.out.println("\n****** starting test: " + m.getName() + " ******\n");
+        utils.log().info("\n****** starting test: " + m.getName() + " ******\n");
 
         productsPage = loginPage.login(loginUsers.getJSONObject("validUser").getString("username"),
                 loginUsers.getJSONObject("validUser").getString("password"));
@@ -87,7 +89,7 @@ public class ProductTests extends BaseTest {
 
         productDetailsPage = productsPage.pressSLBTitle();
 
-        String SLBTitle = productDetailsPage.getSLBTitle() + "fail test";
+        String SLBTitle = productDetailsPage.getSLBTitle();
         sa.assertEquals(SLBTitle, getStrings().getProperty("product_details_page_slb_title"));
 
         String SLBTxt = productDetailsPage.getSLBTxt();

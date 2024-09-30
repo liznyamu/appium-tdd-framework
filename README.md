@@ -21,9 +21,9 @@
   - *Why ?* 
     - to increase test coverage by executing the application on multiple devices
     - to reduce the test execution time even when we execute the automation on multiple devices
-- [ ] Logging framework
-- [ ] Reporting framework
-- [ ] Programmatically start the Appium Server
+- [x] Logging framework
+- [x] Programmatically start the Appium Server
+- [x] Reporting framework - Extent Reports
 - [ ] Integrating with Git
 - [ ] Integrating with Jenkins
 

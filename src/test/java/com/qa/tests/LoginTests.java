@@ -3,6 +3,7 @@ package com.qa.tests;
 import com.qa.BaseTest;
 import com.qa.pages.LoginPage;
 import com.qa.pages.ProductsPage;
+import com.qa.utils.TestUtils;
 import io.appium.java_client.AppiumBy;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +26,7 @@ public class LoginTests extends BaseTest {
     // Note: we are not manipulating data on this class variable - we're just reading data from it
     //          - no need to make it a local variable / thread local
     JSONObject loginUsers;
+    TestUtils utils = new TestUtils();
 
 
     @BeforeClass
@@ -50,8 +52,7 @@ public class LoginTests extends BaseTest {
     public void beforeMethod(Method m) {
         launchApp();
         loginPage = new LoginPage();
-        System.out.println("\n****** starting test: " + m.getName() + " ******\n");
-
+        utils.log().info("\n****** starting test: " + m.getName() + " ******\n");
     }
 
     @AfterMethod
@@ -66,12 +67,8 @@ public class LoginTests extends BaseTest {
         loginPage.pressLoginBtn();
 
         String actualTxt = loginPage.getErrTxt();
-        String expectedErrTxt = getStrings().getProperty("err_invalid_username_or_password");
-        System.out.println("actual error txt - " + actualTxt + "\nexpected error txt - " + expectedErrTxt);
-
+        String expectedErrTxt = getStrings().getProperty("err_invalid_username_or_password") + "failed test";
         Assert.assertEquals(actualTxt, expectedErrTxt);
-
-
     }
 
     @Test
@@ -82,7 +79,6 @@ public class LoginTests extends BaseTest {
 
         String actualTxt = loginPage.getErrTxt();
         String expectedErrTxt = getStrings().getProperty("err_invalid_username_or_password");
-        System.out.println("actual error txt - " + actualTxt + "\nexpected error txt - " + expectedErrTxt);
         Assert.assertEquals(actualTxt, expectedErrTxt);
     }
 
@@ -95,7 +91,6 @@ public class LoginTests extends BaseTest {
 
         String actualProductTitle = productsPage.getTitle();
         String expectedProductTitle = getStrings().getProperty("product_title");
-        System.out.println("actual product title - " + actualProductTitle + "\nexpected product txt - " + expectedProductTitle);
         Assert.assertEquals(actualProductTitle, expectedProductTitle);
     }
 

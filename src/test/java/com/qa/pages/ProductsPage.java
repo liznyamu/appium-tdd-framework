@@ -1,11 +1,13 @@
 package com.qa.pages;
 
 import com.qa.BaseTest;
+import com.qa.utils.TestUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
+
 
 public class ProductsPage extends MenuPage {
     @AndroidFindBy(xpath = "//android.view.ViewGroup[@content-desc=\"test-Toggle\"]/preceding-sibling::android.widget.TextView")
@@ -20,32 +22,24 @@ public class ProductsPage extends MenuPage {
     @iOSXCUITFindBy(xpath = "(//XCUIElementTypeStaticText[@name=\"test-Price\"])[1]")
     WebElement SLBPrice;
 
-
     public ProductsPage() {
         PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
     }
 
     public String getTitle() {
-        String title = getText(productTitleTxt);
-        System.out.println("product page title is - " + title);
-        return title;
+       return getText(productTitleTxt, "product page title is - ");
     }
 
     public String getSLBTitle() {
-        String title = getText(SLBTitle);
-        System.out.println("title is - " + title);
-        return title;
+        return getText(SLBTitle, "title is - ");
     }
 
     public String getSLBPrice() {
-        String price = getText(SLBPrice);
-        System.out.println("price is - " + price);
-        return price;
+         return getText(SLBPrice, "price is - ");
     }
 
     public ProductDetailsPage pressSLBTitle(){
-        System.out.println("press SLB Title");
-        click(SLBTitle);
+        click(SLBTitle, "press SLB Title");
         return new ProductDetailsPage();
     }
 }
